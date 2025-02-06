@@ -26,6 +26,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import GroupIcon from '@mui/icons-material/Group';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useSnackbar } from 'notistack';
+import { motion } from 'framer-motion';
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -112,13 +113,34 @@ const EventDetail = () => {
   const isCreator = event.creator?._id === user?.id;
 
   return (
-    <Box>
-      <Paper sx={{ p: 4, mb: 4 }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Paper 
+        sx={{ 
+          p: 4, 
+          mb: 4,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+          }
+        }}
+      >
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
-            <Typography variant="h3" gutterBottom>
-              {event.title}
-            </Typography>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Typography variant="h3" gutterBottom>
+                {event.title}
+              </Typography>
+            </motion.div>
             <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
               <Chip icon={<CalendarTodayIcon />} 
                     label={format(new Date(event.date), 'PPP at p')} />
@@ -160,7 +182,7 @@ const EventDetail = () => {
           </Grid>
         </Grid>
       </Paper>
-    </Box>
+    </motion.div>
   );
 };
 

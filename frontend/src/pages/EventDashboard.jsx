@@ -6,6 +6,17 @@ import { eventService } from '../services/api';
 import { useSnackbar } from 'notistack';
 import { useAuth } from '../contexts/AuthContext';
 import { useWebSocket } from '../contexts/WebSocketContext';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 const EventDashboard = () => {
   const [events, setEvents] = useState([]);
@@ -88,9 +99,15 @@ const EventDashboard = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress />
+        </Box>
+      </motion.div>
     );
   }
 
@@ -104,26 +121,40 @@ const EventDashboard = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Events Dashboard
-      </Typography>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Typography variant="h4" gutterBottom>
+          Events Dashboard
+        </Typography>
+        
+        <EventSearch onSearch={handleSearch} />
+      </motion.div>
       
-      <EventSearch onSearch={handleSearch} />
-      
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        {filteredEvents.map(event => (
-          <Grid item xs={12} sm={6} md={4} key={event._id}>
-            <EventCard event={event} />
+      <AnimatePresence>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Grid container spacing={3} sx={{ mt: 2 }}>
+            {filteredEvents.map(event => (
+              <Grid item xs={12} sm={6} md={4} key={event._id}>
+                <EventCard event={event} />
+              </Grid>
+            ))}
+            {filteredEvents.length === 0 && (
+              <Grid item xs={12}>
+                <Typography variant="body1" color="text.secondary" align="center">
+                  No events found
+                </Typography>
+              </Grid>
+            )}
           </Grid>
-        ))}
-        {filteredEvents.length === 0 && (
-          <Grid item xs={12}>
-            <Typography variant="body1" color="text.secondary" align="center">
-              No events found
-            </Typography>
-          </Grid>
-        )}
-      </Grid>
+        </motion.div>
+      </AnimatePresence>
     </Box>
   );
 };

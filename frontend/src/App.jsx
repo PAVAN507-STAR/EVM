@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import EventDashboard from './pages/EventDashboard';
 import EventDetail from './pages/EventDetail';
+import CreateEvent from './pages/CreateEvent';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 
@@ -65,6 +66,14 @@ const App = () => {
                   <Route path="/register" element={<Register />} />
                   <Route path="/" element={<Home />} />
                   <Route path="/events/:id" element={<EventDetail />} />
+                  <Route
+                    path="/create-event"
+                    element={
+                      <ProtectedRoute>
+                        <CreateEvent />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route
                     path="/dashboard"
                     element={
