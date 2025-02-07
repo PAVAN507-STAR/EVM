@@ -161,6 +161,11 @@ export const eventController = {
         return res.status(400).json({ message: 'Already attending this event' });
       }
 
+      // Check if event has reached max attendees
+      if (event.maxAttendees && event.attendees.length >= event.maxAttendees) {
+        return res.status(400).json({ message: 'Event has reached maximum capacity' });
+      }
+
       // Add user to attendees
       event.attendees.push(req.user._id);
       await event.save();

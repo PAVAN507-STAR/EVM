@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { useNotification } from '../hooks/useNotification';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -10,24 +11,26 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
-  const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      showNotification('Passwords do not match', 'error');
       return;
     }
 
     try {
       const success = await register(formData);
-      if (success) navigate('/dashboard');
+      if (success) {
+        showNotification('Registration successful!', 'success');
+        navigate('/dashboard');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      const errorMessage = err.response?.data?.message || 'Registration failed';
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -37,11 +40,6 @@ const Register = () => {
         <Typography variant="h5" gutterBottom>
           Register
         </Typography>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth

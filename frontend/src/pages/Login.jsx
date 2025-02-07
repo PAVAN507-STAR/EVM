@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Box, TextField, Button, Typography, Paper, Link, Alert } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { useTheme } from '../contexts/ThemeContext';
+import { useNotification } from '../hooks/useNotification';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
@@ -11,7 +12,8 @@ const Login = () => {
   const [retryTimeout, setRetryTimeout] = useState(null);
   const { login, guestLogin } = useAuth();
   const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
+  const { isDarkMode } = useTheme();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     return () => {
@@ -23,14 +25,12 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await login(credentials);
-      if (response) {
-        enqueueSnackbar('Login successful!', { variant: 'success' });
-        setTimeout(() => navigate('/dashboard'), 100); // Add small delay for state to update
-      }
+      await login(credentials);
+      showNotification('Login successful!', 'success');
+      navigate('/dashboard');
     } catch (error) {
       setError(error.message);
-      enqueueSnackbar(error.message, { variant: 'error' });
+      showNotification(error.message, 'error');
     } finally {
       setIsSubmitting(false);
     }

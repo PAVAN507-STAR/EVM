@@ -6,14 +6,12 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { motion } from 'framer-motion';
 import { eventService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
 import { useAuth } from '../contexts/AuthContext';
 
 const categories = ['conference', 'workshop', 'social', 'other'];
 
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
   const { isAuthenticated } = useAuth();
   const [event, setEvent] = useState({
     title: '',
@@ -26,21 +24,18 @@ const CreateEvent = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      enqueueSnackbar('Please login to create an event', { variant: 'warning' });
       navigate('/login');
     }
-  }, [isAuthenticated, navigate, enqueueSnackbar]);
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!event.title || !event.description || !event.date || !event.category || !event.location) {
-      enqueueSnackbar('Please fill in all required fields', { variant: 'error' });
       return;
     }
 
     if (new Date(event.date) < new Date()) {
-      enqueueSnackbar('Event date must be in the future', { variant: 'error' });
       return;
     }
 
@@ -55,11 +50,9 @@ const CreateEvent = () => {
       };
 
       await eventService.createEvent(formattedEvent);
-      enqueueSnackbar('Event created successfully!', { variant: 'success' });
       navigate('/dashboard');
     } catch (error) {
       console.error('Failed to create event:', error);
-      enqueueSnackbar(error.response?.data?.message || 'Failed to create event', { variant: 'error' });
     }
   };
 

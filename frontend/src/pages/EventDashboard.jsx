@@ -1,12 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Grid, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { 
+  Grid, 
+  Typography, 
+  Box, 
+  CircularProgress, 
+  Alert,
+  Container,
+  useTheme,
+  useMediaQuery 
+} from '@mui/material';
 import EventCard from '../components/events/EventCard';
 import EventSearch from '../components/events/EventSearch';
 import { eventService } from '../services/api';
-import { useSnackbar } from 'notistack';
 import { useAuth } from '../contexts/AuthContext';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNotification } from '../hooks/useNotification';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,13 +28,16 @@ const containerVariants = {
 };
 
 const EventDashboard = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { enqueueSnackbar } = useSnackbar();
+  const [loading, setLoading] = useState(true);;
   const { user } = useAuth();
   const { socket } = useWebSocket();
   const [error, setError] = useState('');
+  const { showNotification } = useNotification();
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -39,11 +51,10 @@ const EventDashboard = () => {
     } catch (error) {
       console.error('Failed to fetch events:', error);
       setError(error.message || 'Failed to fetch events');
-      enqueueSnackbar(error.message, { variant: 'error' });
     } finally {
       setLoading(false);
     }
-  }, [enqueueSnackbar]);
+  }, []);
 
   useEffect(() => {
     fetchEvents();
@@ -120,42 +131,85 @@ const EventDashboard = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Typography variant="h4" gutterBottom>
-          Events Dashboard
-        </Typography>
-        
-        <EventSearch onSearch={handleSearch} />
-      </motion.div>
-      
-      <AnimatePresence>
+    <Container maxWidth="xl">
+      <Box sx={{ 
+        p: { xs: 2, sm: 3 },
+        mt: { xs: 2, sm: 3 }
+      }}>
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <Grid container spacing={3} sx={{ mt: 2 }}>
-            {filteredEvents.map(event => (
-              <Grid item xs={12} sm={6} md={4} key={event._id}>
-                <EventCard event={event} />
-              </Grid>
-            ))}
-            {filteredEvents.length === 0 && (
-              <Grid item xs={12}>
-                <Typography variant="body1" color="text.secondary" align="center">
-                  No events found
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
+          <Typography 
+            variant={isMobile ? "h5" : "h4"} 
+            gutterBottom
+            sx={{
+              fontSize: {
+                xs: '1.5rem',
+                sm: '2rem',
+                md: '2.25rem'
+              },
+              mb: { xs: 2, sm: 3 }
+            }}
+          >
+            Events Dashboard
+          </Typography>
+          
+          <EventSearch onSearch={handleSearch} />
         </motion.div>
-      </AnimatePresence>
-    </Box>
+        
+        <AnimatePresence>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Grid 
+              container 
+              spacing={{ xs: 2, sm: 3 }} 
+              sx={{ mt: { xs: 1, sm: 2 } }}
+            >
+              {filteredEvents.map(event => (
+                <Grid 
+                  item 
+                  xs={12} 
+                  sm={isTablet ? 6 : 4} 
+                  md={4} 
+                  lg={3} 
+                  key={event._id}
+                >
+                  <EventCard event={event} />
+                </Grid>
+              ))}
+              {filteredEvents.length === 0 && (
+                <Grid item xs={12}>
+                  <Box 
+                    sx={{ 
+                      py: { xs: 4, sm: 6 },
+                      textAlign: 'center'
+                    }}
+                  >
+                    <Typography 
+                      variant="body1" 
+                      color="text.secondary"
+                      sx={{
+                        fontSize: {
+                          xs: '0.875rem',
+                          sm: '1rem'
+                        }
+                      }}
+                    >
+                      No events found
+                    </Typography>
+                  </Box>
+                </Grid>
+              )}
+            </Grid>
+          </motion.div>
+        </AnimatePresence>
+      </Box>
+    </Container>
   );
 };
 

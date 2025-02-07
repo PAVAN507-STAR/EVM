@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { WebSocketProvider } from './contexts/WebSocketContext';
+import { SnackbarProvider } from 'notistack';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
@@ -9,54 +10,31 @@ import Home from './pages/Home';
 import EventDashboard from './pages/EventDashboard';
 import EventDetail from './pages/EventDetail';
 import CreateEvent from './pages/CreateEvent';
-import { ThemeProvider, createTheme } from '@mui/material';
-import { SnackbarProvider } from 'notistack';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { getTheme } from './theme';
+import { CssBaseline } from '@mui/material';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#000000',
-    },
-    secondary: {
-      main: '#666666',
-    },
-    background: {
-      default: '#ffffff',
-      paper: '#ffffff',
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 0,
-          textTransform: 'none',
-        },
-        contained: {
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: 'none',
-          },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#ffffff',
-          color: '#000000',
-          boxShadow: 'none',
-          borderBottom: '1px solid #e0e0e0',
-        },
-      },
-    },
-  },
-});
+const AppContent = () => {
+  const { isDarkMode } = useTheme();
+  const theme = getTheme(isDarkMode);
 
-const App = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <SnackbarProvider maxSnack={3}>
+    <MuiThemeProvider theme={theme}>
+      <CssBaseline />
+      <SnackbarProvider
+        maxSnack={3}
+        autoHideDuration={3000}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        style={{
+          backgroundColor: isDarkMode ? '#000' : '#fff',
+          color: isDarkMode ? '#fff' : '#000',
+          border: `1px solid ${isDarkMode ? '#333' : '#e0e0e0'}`,
+        }}
+      >
         <Router>
           <AuthProvider>
             <WebSocketProvider>
@@ -88,6 +66,14 @@ const App = () => {
           </AuthProvider>
         </Router>
       </SnackbarProvider>
+    </MuiThemeProvider>
+  );
+};
+
+const App = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
     </ThemeProvider>
   );
 };

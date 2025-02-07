@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Alert, Snackbar } from '@mui/material';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 
 const WebSocketErrorBoundary = ({ children }) => {
@@ -12,19 +11,7 @@ const WebSocketErrorBoundary = ({ children }) => {
     }
   }, [isConnected, reconnect]);
 
-  return (
-    <>
-      <Snackbar
-        open={!isConnected}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert severity="warning">
-          Connection lost. Attempting to reconnect...
-        </Alert>
-      </Snackbar>
-      {children}
-    </>
-  );
+  return children;
 };
 
 export default WebSocketErrorBoundary; 

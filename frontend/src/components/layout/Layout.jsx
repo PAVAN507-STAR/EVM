@@ -7,7 +7,7 @@ const Layout = ({ children }) => {
       display: 'flex', 
       flexDirection: 'column', 
       minHeight: '100vh',
-      bgcolor: '#ffffff'
+      bgcolor: 'background.default'
     }}>
       <Navbar />
       <Box component="main" sx={{ 
@@ -15,7 +15,8 @@ const Layout = ({ children }) => {
         p: 3,
         maxWidth: '1200px',
         mx: 'auto',
-        width: '100%'
+        width: '100%',
+        bgcolor: 'background.default'
       }}>
         {children}
       </Box>
